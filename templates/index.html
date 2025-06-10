@@ -1,0 +1,66 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1>Welcome, {{ user.username }}!</h1>
+        <p class="lead">Manage your shared expenses easily</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>Your Groups</h5>
+                <a href="{{ url_for('create_group') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create Group
+                </a>
+            </div>
+            <div class="card-body">
+                {% if groups %}
+                    <div class="row">
+                        {% for group in groups %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card expense-card">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ group.name }}</h6>
+                                    <p class="card-text text-muted">{{ group.description or 'No description' }}</p>
+                                    <p class="small">
+                                        <i class="fas fa-users"></i> {{ group.members|length }} members
+                                    </p>
+                                    <a href="{{ url_for('group_detail', group_id=group.id) }}" class="btn btn-outline-primary btn-sm">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">You're not part of any groups yet. Create one to get started!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6>Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('create_group') }}" class="btn btn-primary">
+                        <i class="fas fa-users"></i> Create New Group
+                    </a>
+                    <a href="{{ url_for('groups') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-list"></i> View All Groups
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

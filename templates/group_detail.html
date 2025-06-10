@@ -1,0 +1,85 @@
+<!-- templates/group_detail.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2>{{ group.name }}</h2>
+        <p class="text-muted">{{ group.description or 'No description' }}</p>
+    </div>
+    <a href="{{ url_for('add_expense', group_id=group.id) }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Add Expense
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Expenses</h5>
+            </div>
+            <div class="card-body">
+                {% if expenses %}
+                    {% for expense in expenses %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="card-title">{{ expense.title }}</h6>
+                                    <p class="card-text text-muted">{{ expense.description or 'No description' }}</p>
+                                    <small class="text-muted">
+                                        Paid by <strong>{{ expense.payer.username }}</strong> on {{ expense.created_at.strftime('%Y-%m-%d') }}
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    <h5 class="text-primary">${{ "%.2f"|format(expense.amount) }}</h5>
+                                    <small class="badge bg-{{ 'success' if expense.split_type == 'equal' else 'warning' }}">
+                                        {{ expense.split_type }} split
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No expenses yet. Add your first expense!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h6>Group Members</h6>
+            </div>
+            <div class="card-body">
+                {% for member in group.members %}
+                <div class="d-flex align-items-center mb-2">
+                    <div class="flex-grow-1">{{ member.username }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6>Balances</h6>
+                <a href="{{ url_for('settlements', group_id=group.id) }}" class="btn btn-sm btn-outline-primary">
+                    Settle Up
+                </a>
+            </div>
+            <div class="card-body">
+                {% for user_id, balance_data in balances.items() %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>{{ balance_data.user.username }}</span>
+                    <span class="{% if balance_data.balance > 0 %}balance-positive{% elif balance_data.balance < 0 %}balance-negative{% endif %}">
+                        ${{ "%.2f"|format(balance_data.balance) }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

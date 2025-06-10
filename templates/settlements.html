@@ -1,0 +1,80 @@
+<!-- templates/settlements.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mb-4">
+    <h2>Settle Up - {{ group.name }}</h2>
+    <p class="text-muted">Here's how to settle all debts with minimum transactions</p>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recommended Settlements</h5>
+            </div>
+            <div class="card-body">
+                {% if settlements %}
+                    {% for settlement in settlements %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ settlement.from_user.username }}</strong> 
+                                    <i class="fas fa-arrow-right mx-2"></i>
+                                    <strong>{{ settlement.to_user.username }}</strong>
+                                </div>
+                                <div class="text-primary font-weight-bold">
+                                    ${{ "%.2f"|format(settlement.amount) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-check-circle fa-3x mb-3"></i>
+                        <h5>All Settled Up!</h5>
+                        <p>No settlements needed - everyone is even.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Current Balances</h5>
+            </div>
+            <div class="card-body">
+                {% for member in group.members %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>{{ member.username }}</span>
+                    {% set balance = 0 %}
+                    {% for expense in group.expenses %}
+                        {% if expense.paid_by == member.id %}
+                            {% set balance = balance + expense.amount %}
+                        {% endif %}
+                        {% for split in expense.splits %}
+                            {% if split.user_id == member.id %}
+                                {% set balance = balance - split.amount %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                    <span class="{% if balance > 0 %}balance-positive{% elif balance < 0 %}balance-negative{% endif %}">
+                        ${{ "%.2f"|format(balance) }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <a href="{{ url_for('group_detail', group_id=group.id) }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Back to Group
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
